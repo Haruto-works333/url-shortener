@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -15,7 +16,11 @@ import (
 
 func main() {
 	// Connect to PostgreSQL
-	dsn := "host=localhost port=5432 user=app password=password dbname=url_shortener sslmode=disable"
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		dsn = "host=localhost port=5432 user=app password=password dbname=url_shortener sslmode=disable"
+	}
+
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatal("failed to connect to database:", err)
@@ -52,5 +57,10 @@ func main() {
 	// Redirect: GET /:code -> original URL
 	r.GET("/:code", redirectHandler.Redirect)
 
-	r.Run(":8080")
+	// Use PORT env var (Cloud Run sets this automatically)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	r.Run(":" + port)
 }

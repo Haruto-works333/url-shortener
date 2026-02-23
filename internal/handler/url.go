@@ -37,7 +37,7 @@ func (h *URLHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, model.CreateURLResponse{
 		ShortCode:   url.ShortCode,
 		OriginalURL: url.OriginalURL,
-		ShortURL:    fmt.Sprintf("http://localhost:8080/%s", url.ShortCode),
+		ShortURL:    fmt.Sprintf("%s/%s", getBaseURL(c.Request), url.ShortCode),
 	})
 }
 
@@ -52,4 +52,13 @@ func (h *URLHandler) GetByShortCode(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, url)
+}
+
+// getBaseURL returns the base URL from the request.
+func getBaseURL(r *http.Request) string {
+	scheme := "http"
+	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+		scheme = "https"
+	}
+	return fmt.Sprintf("%s://%s", scheme, r.Host)
 }

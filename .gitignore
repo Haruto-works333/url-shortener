@@ -1,0 +1,9 @@
+# Binary
+cloud-sql-proxy
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
